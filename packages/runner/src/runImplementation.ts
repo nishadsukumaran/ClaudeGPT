@@ -301,18 +301,25 @@ export async function runImplementation(jobId: string): Promise<void> {
       return;
     }
 
-    // 16. Open PR
+    // 16. Open PR (ready for review, not draft — validations already passed locally,
+    // and Codex Connector's auto-review only triggers on non-draft PRs).
     const pr = await createPullRequest({
       repo: job.githubRepo,
       title: `[${issue.number}] ${issue.title}`,
       head: branchName,
       base: project.defaultBranch,
       body: prBody,
-      draft: true,
+      draft: false,
     });
     await writeLog(runId, 'info', 'runner.pr.open', `pr=${pr.number} url=${pr.html_url}`);
     await db.update(schema.agentRuns).set({ prNumber: pr.number }).where(eq(schema.agentRuns.id, runId));
     await db.update(schema.agentJobs).set({ githubPrNumber: pr.number }).where(eq(schema.agentJobs.id, jobId));
+
+    // 16b. Belt-and-braces nudge for ChatGPT Codex Connector. Codex auto-reviews
+    // on PR open, but tends to skip bot-authored PRs unless prompted. A short
+    // \`@codex review\` comment from the App reliably kicks it off.
+    await commentOnIssue(job.githubRepo, pr.number, '@codex review')
+      .catch((err) => log.warn({ err }, 'codex auto-mention failed (non-fatal)'));
 
     // 17. post-pr hook (informational, never blocks)
     const postPr = await runHook({
