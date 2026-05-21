@@ -52,6 +52,7 @@ export async function invokeClaude(opts: ClaudeInvocationOptions): Promise<Claud
     '--print',
     '--output-format=json',
     `--model=${model}`,
+    '--dangerously-skip-permissions',
     ...(opts.extraArgs ?? []),
   ];
 
