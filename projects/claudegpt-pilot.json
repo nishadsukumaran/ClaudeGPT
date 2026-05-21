@@ -1,0 +1,52 @@
+{
+  "projectId": "claudegpt-pilot",
+  "name": "ClaudeGPT Pilot",
+  "githubRepo": "nishadsukumaran/claudegpt-pilot",
+  "clickupFolderId": null,
+  "defaultBranch": "main",
+  "branchPrefix": "feature",
+  "primaryBuildAgent": "claude-code",
+  "qaAgent": "openai",
+  "trustedUsers": ["nishadsukumaran"],
+  "trustedTriggerLabel": "claude-ready",
+  "labels": {
+    "ready": "claude-ready",
+    "claimed": "claude-claimed",
+    "inProgress": "claude-in-progress",
+    "complete": "claude-complete",
+    "qa": "openai-qa",
+    "approved": "openai-approved",
+    "rework": "claude-rework",
+    "blocked": "blocked",
+    "needsOwner": "needs-nishad",
+    "doNotRun": "do-not-run-agent",
+    "securityReview": "security-review",
+    "databaseReview": "database-review",
+    "releaseReady": "release-ready"
+  },
+  "commands": {
+    "install": "npm install",
+    "lint": "npm run lint",
+    "typecheck": "npm run typecheck",
+    "test": "npm test",
+    "build": "npm run build"
+  },
+  "paths": {
+    "agentPolicy": ".claudegpt/agent-policy.md",
+    "claudeGuide": "CLAUDE.md",
+    "protected": []
+  },
+  "limits": {
+    "maxRunMinutes": 30,
+    "maxQaMinutes": 5,
+    "maxTokens": 200000,
+    "maxFiles": 25,
+    "maxLines": 1500,
+    "maxCostUsd": 5,
+    "concurrentRuns": 1
+  },
+  "metadata": {
+    "stage": "prototype",
+    "owner": "nishad"
+  }
+}
