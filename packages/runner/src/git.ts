@@ -157,14 +157,15 @@ export async function pushBranch(args: {
     throw new Error(`Refusing to push to default branch: ${args.defaultBranch}`);
   }
 
-  // Carry the token via GIT_HTTP_EXTRAHEADER env var. (`git -c http.extraheader=...`
-  // would require the -c to come BEFORE the subcommand; simple-git's push() appends
-  // them after, which git rejects with "unknown switch \`c\`".)
+  // Carry the token via a local repo config (http.extraheader). Setting it via
+  // `git config` writes only to this clone's .git/config — not the remote — so
+  // it's safe and disposable. `GIT_HTTP_EXTRAHEADER` env var doesn't exist;
+  // `git -c http.extraheader=...` would require the -c BEFORE the subcommand,
+  // which simple-git's push() doesn't allow.
   const basic = Buffer.from(`x-access-token:${args.token}`).toString('base64');
+  await args.git.addConfig('http.extraheader', `Authorization: Basic ${basic}`);
   log.info({ branch: args.branch, repo: args.repo }, 'Pushing branch');
-  await args.git
-    .env('GIT_HTTP_EXTRAHEADER', `Authorization: Basic ${basic}`)
-    .push('origin', `${args.branch}:${args.branch}`, ['--set-upstream']);
+  await args.git.push('origin', `${args.branch}:${args.branch}`, ['--set-upstream']);
 }
 
 /**
