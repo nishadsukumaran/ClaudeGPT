@@ -29,12 +29,11 @@ const HOOK_TIMEOUT_MS = 30_000;
 
 /**
  * Resolve the hook script path. Hook scripts live in this repo at hooks/<name>.js.
- * Priority: HOOKS_DIR env var > process.cwd()/hooks. The env var matters in containers
- * where the worker cwd is not the repo root (e.g. /app/apps/worker vs /app/hooks).
+ * We use process.cwd() (the orchestrator working tree) — for production this should
+ * be made configurable via env if the orchestrator runs from a different CWD.
  */
 function resolveHookPath(name: HookName): string {
-  const dir = process.env.HOOKS_DIR ?? path.resolve(process.cwd(), 'hooks');
-  return path.resolve(dir, `${name}.js`);
+  return path.resolve(process.cwd(), 'hooks', `${name}.js`);
 }
 
 /**
@@ -158,4 +157,7 @@ export async function runHook(args: {
       child.stdin.write(JSON.stringify(args.payload));
       child.stdin.end();
     } catch (err) {
-      log.error({ hook:
+      log.error({ hook: args.hook, err }, 'Failed to write hook stdin');
+    }
+  });
+}
