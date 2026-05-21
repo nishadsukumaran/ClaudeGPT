@@ -33,7 +33,8 @@ const HOOK_TIMEOUT_MS = 30_000;
  * be made configurable via env if the orchestrator runs from a different CWD.
  */
 function resolveHookPath(name: HookName): string {
-  return path.resolve(process.cwd(), 'hooks', `${name}.js`);
+  const dir = process.env.HOOKS_DIR ?? path.resolve(process.cwd(), 'hooks');
+  return path.resolve(dir, `${name}.js`);
 }
 
 /**

@@ -74,7 +74,13 @@ function parseFrontmatter(raw: string): AgentDefinition {
  * repo at `agents/`.
  */
 export function loadAgentDefinition(relativePath: string): AgentDefinition {
-  const abs = path.resolve(process.cwd(), relativePath);
+  let abs: string;
+  if (process.env.AGENTS_DIR) {
+    const stripped = relativePath.replace(/^agents[\\/]/, '');
+    abs = path.resolve(process.env.AGENTS_DIR, stripped);
+  } else {
+    abs = path.resolve(process.cwd(), relativePath);
+  }
   const raw = fs.readFileSync(abs, 'utf8');
   return parseFrontmatter(raw);
 }
