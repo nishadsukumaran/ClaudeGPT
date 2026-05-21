@@ -94,4 +94,13 @@ export function getRegistry(dir?: string): ProjectRegistry {
   if (!singleton) {
     // Resolution priority: explicit arg > PROJECTS_DIR env > default "projects" relative to cwd.
     const resolvedDir = dir ?? process.env.PROJECTS_DIR ?? 'projects';
-    singleton = new Projec
+    singleton = new ProjectRegistry(resolvedDir);
+    singleton.load();
+  }
+  return singleton;
+}
+
+export function reloadRegistry(): number {
+  if (!singleton) return 0;
+  return singleton.load();
+}
