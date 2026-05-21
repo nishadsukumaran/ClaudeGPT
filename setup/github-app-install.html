@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ClaudeGPT — GitHub App one-click install</title>
+  <style>
+    body { font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 20px; color: #0f172a; line-height: 1.55; }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    h2 { font-size: 16px; margin-top: 32px; }
+    .sub { color: #64748b; margin-bottom: 24px; }
+    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px 24px; margin: 16px 0; }
+    .step { background: #eff6ff; border-left: 4px solid #2563eb; padding: 14px 18px; margin: 12px 0; border-radius: 0 6px 6px 0; }
+    .step strong { color: #1e40af; }
+    input[type=text] { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: ui-monospace, monospace; font-size: 13px; box-sizing: border-box; }
+    label { display: block; font-weight: 600; margin: 16px 0 6px; font-size: 14px; }
+    .hint { font-size: 12px; color: #64748b; margin-top: 6px; }
+    button { background: #1f883d; color: #fff; border: 0; padding: 12px 24px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 24px; }
+    button:hover { background: #1a7333; }
+    button.secondary { background: #fff; color: #2563eb; border: 1px solid #2563eb; }
+    .radio { display: flex; gap: 16px; margin-top: 6px; }
+    .radio label { display: flex; gap: 6px; font-weight: normal; margin: 0; align-items: center; }
+    code { background: #e2e8f0; padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+    a { color: #2563eb; }
+    .err { background: #fee2e2; border: 1px solid #dc2626; padding: 12px 16px; border-radius: 6px; color: #991b1b; font-size: 13px; margin-top: 16px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>ClaudeGPT — GitHub App install</h1>
+  <p class="sub">Pre-fills GitHub's "Create App" form. GitHub requires a public callback URL, so we'll use <a href="https://smee.io" target="_blank">smee.io</a> as a free relay.</p>
+
+  <div class="step">
+    <strong>Step A</strong> — Open <a href="https://smee.io/new" target="_blank">https://smee.io/new</a> in a new tab. It auto-generates a URL like <code>https://smee.io/abc123xyz</code>. <strong>Keep that browser tab open</strong> — GitHub's redirect will land there. Paste the URL into the form below.
+  </div>
+
+  <form id="appForm" method="post">
+    <label>1. Smee callback URL (from step A)</label>
+    <input type="text" id="callbackUrl" placeholder="https://smee.io/abc123xyz" required pattern="https://.+">
+    <div class="hint">Required by GitHub. Must be HTTPS. The smee.io page will show the temp code GitHub sends after creating the App.</div>
+
+    <label>2. App name (must be unique across all of GitHub)</label>
+    <input type="text" id="appName" value="ClaudeGPT Orchestrator (Nishad)" required>
+    <div class="hint">Pick something distinctive. GitHub rejects duplicates.</div>
+
+    <label>3. Webhook URL (where GitHub sends events to the orchestrator)</label>
+    <input type="text" id="webhookUrl" value="https://orchestrator.example.com/v1/webhooks/github" required pattern="https://.+">
+    <div class="hint">If you haven't deployed yet, leave the placeholder. You can edit it in App settings later. For local dev, you can paste a second smee.io URL.</div>
+
+    <label>4. Install on</label>
+    <div class="radio">
+      <label><input type="radio" name="target" value="personal" checked> Personal account</label>
+      <label><input type="radio" name="target" value="org"> Organization</label>
+    </div>
+
+    <label id="orgLabel" style="display:none;">Organization slug</label>
+    <input type="text" id="orgSlug" placeholder="my-org" style="display:none;">
+
+    <button type="submit">Create App on GitHub →</button>
+    <div id="err" class="err"></div>
+  </form>
+
+  <h2>What this App will request</h2>
+  <div class="card">
+    <strong>Permissions:</strong> Contents (write), Issues (write), Pull requests (write), Metadata (read), Checks (read).<br>
+    <strong>Events:</strong> <code>issues</code>, <code>issue_comment</code>, <code>pull_request</code>, <code>pull_request_review</code>, <code>push</code>.<br>
+    <strong>Visibility:</strong> Private (only you can install it).
+  </div>
+
+  <h2>After GitHub creates the App</h2>
+  <div class="step">
+    <strong>Step B</strong> — Switch to your <strong>smee.io</strong> tab. You'll see GitHub's GET request appear in the request log. The URL has <code>?code=...</code> at the end. Click the request to expand it and copy the <code>code</code> query parameter.
+  </div>
+  <div class="step">
+    <strong>Step C</strong> — Paste the code into the Claude chat. Claude exchanges it for App ID + private key + webhook secret and writes them into your <code>.env</code>.
+  </div>
+
+  <script>
+    const radios = document.querySelectorAll('input[name="target"]');
+    const orgLabel = document.getElementById('orgLabel');
+    const orgSlug = document.getElementById('orgSlug');
+    const err = document.getElementById('err');
+
+    radios.forEach(r => r.addEventListener('change', e => {
+      const isOrg = e.target.value === 'org';
+      orgLabel.style.display = isOrg ? 'block' : 'none';
+      orgSlug.style.display = isOrg ? 'block' : 'none';
+    }));
+
+    document.getElementById('appForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      err.style.display = 'none';
+
+      const callback = document.getElementById('callbackUrl').value.trim();
+      const name = document.getElementById('appName').value.trim();
+      const webhook = document.getElementById('webhookUrl').value.trim();
+      const target = document.querySelector('input[name="target"]:checked').value;
+      const org = document.getElementById('orgSlug').value.trim();
+
+      if (!callback.startsWith('https://')) {
+        err.textContent = 'Callback URL must start with https:// (use a smee.io URL).';
+        err.style.display = 'block';
+        return;
+      }
+      if (!webhook.startsWith('https://')) {
+        err.textContent = 'Webhook URL must start with https://';
+        err.style.display = 'block';
+        return;
+      }
+
+      const manifest = {
+        name: name,
+        url: 'https://github.com/nishadsukumaran/claudegpt',
+        hook_attributes: { url: webhook, active: true },
+        redirect_url: callback,
+        public: false,
+        description: 'ClaudeGPT — orchestrates AI-assisted software delivery. Claude Code builds, ChatGPT GitHub App reviews, ClickUp syncs.',
+        default_events: ['issues', 'issue_comment', 'pull_request', 'pull_request_review', 'push'],
+        default_permissions: {
+          contents: 'write',
+          issues: 'write',
+          metadata: 'read',
+          pull_requests: 'write',
+          checks: 'read'
+        }
+      };
+
+      const action = target === 'org' && org
+        ? `https://github.com/organizations/${encodeURIComponent(org)}/settings/apps/new`
+        : 'https://github.com/settings/apps/new';
+
+      const form = document.createElement('form');
+      form.action = action;
+      form.method = 'post';
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'manifest';
+      input.value = JSON.stringify(manifest);
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "ClaudeGPT Orchestrator",
+  "url": "https://github.com/nishadsukumaran/claudegpt",
+  "hook_attributes": {
+    "url": "https://orchestrator.example.com/v1/webhooks/github",
+    "active": true
+  },
+  "redirect_url": "https://nishad.me/claudegpt-callback",
+  "callback_urls": [],
+  "public": false,
+  "description": "ClaudeGPT — orchestrates AI-assisted software delivery. Claude Code builds, ChatGPT GitHub App reviews, ClickUp syncs. See https://github.com/nishadsukumaran/claudegpt for details.",
+  "default_events": [
+    "issues",
+    "issue_comment",
+    "pull_request",
+    "pull_request_review",
+    "push"
+  ],
+  "default_permissions": {
+    "contents": "write",
+    "issues": "write",
+    "metadata": "read",
+    "pull_requests": "write",
+    "checks": "read"
+  }
+}

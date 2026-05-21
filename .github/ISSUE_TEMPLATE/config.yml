@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Owner-only task
+    url: https://example.com
+    about: For tasks Nishad will handle personally, file a plain note in ClickUp instead of a GitHub issue.

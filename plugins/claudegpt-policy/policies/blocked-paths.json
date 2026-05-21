@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "description": "Path globs the agent must not read or write. Project configs may extend, never shrink.",
+  "patterns": [
+    ".env",
+    ".env.*",
+    ".env.local",
+    ".env.production",
+    ".env.staging",
+    "*.pem",
+    "*.key",
+    "*.p12",
+    "*.pfx",
+    "secrets/**",
+    ".claudegpt/secrets/**",
+    "config/secrets/**",
+    "infrastructure/secrets/**",
+    "**/credentials.json",
+    "**/service-account*.json"
+  ],
+  "conditional": {
+    ".github/workflows/**": "require_label:infra",
+    "infrastructure/**": "require_label:infra",
+    "terraform/**": "require_label:infra",
+    "k8s/**": "require_label:infra",
+    "Dockerfile": "require_label:infra"
+  }
+}

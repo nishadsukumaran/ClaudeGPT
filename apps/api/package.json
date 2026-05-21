@@ -1,0 +1,27 @@
+{
+  "name": "@claudegpt/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "tsx src/server.ts",
+    "dev": "tsx watch src/server.ts",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@claudegpt/db": "workspace:*",
+    "@claudegpt/github": "workspace:*",
+    "@claudegpt/project-registry": "workspace:*",
+    "@claudegpt/queue": "workspace:*",
+    "@claudegpt/routing": "workspace:*",
+    "@claudegpt/shared": "workspace:*",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/rate-limit": "^9.1.0",
+    "drizzle-orm": "^0.32.0",
+    "fastify": "^4.28.0",
+    "zod": "^3.23.8"
+  }
+}

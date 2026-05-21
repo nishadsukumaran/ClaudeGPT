@@ -1,0 +1,33 @@
+{
+  "name": "claudegpt-policy",
+  "version": "0.1.0",
+  "description": "Enforces ClaudeGPT agent policy via hooks, slash commands, and agent presets. Install in every target repo registered with the orchestrator.",
+  "owner": "nishad",
+  "homepage": "https://github.com/nishadsukumaran/claudegpt",
+  "hooks": {
+    "pre-execution": "hooks/pre-execution.js",
+    "pre-edit": "hooks/pre-edit.js",
+    "post-edit": "hooks/post-edit.js",
+    "pre-commit": "hooks/pre-commit.js",
+    "pre-push": "hooks/pre-push.js",
+    "pre-pr": "hooks/pre-pr.js",
+    "post-pr": "hooks/post-pr.js"
+  },
+  "commands": [
+    "commands/claude-status.md",
+    "commands/claude-handoff.md",
+    "commands/claude-bail.md"
+  ],
+  "agents": [
+    "agents/builder.md",
+    "agents/rework.md"
+  ],
+  "config_files": [
+    "policies/blocked-paths.json",
+    "policies/risk-keywords.json"
+  ],
+  "requires": {
+    "claude_code_min_version": "0.10.0",
+    "node": ">=20.0.0"
+  }
+}

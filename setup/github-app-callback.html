@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ClaudeGPT — App created</title>
+  <style>
+    body { font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; color: #0f172a; line-height: 1.5; }
+    h1 { font-size: 24px; }
+    .ok { background: #dcfce7; border: 1px solid #16a34a; padding: 16px 20px; border-radius: 8px; margin: 16px 0; }
+    .fail { background: #fee2e2; border: 1px solid #dc2626; padding: 16px 20px; border-radius: 8px; margin: 16px 0; }
+    code { background: #e2e8f0; padding: 4px 8px; border-radius: 3px; font-size: 14px; word-break: break-all; display: inline-block; max-width: 100%; }
+    .code-box { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 16px; border-radius: 6px; font-family: ui-monospace, monospace; font-size: 14px; word-break: break-all; margin: 12px 0; }
+    button { background: #2563eb; color: #fff; border: 0; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>ClaudeGPT — GitHub App created</h1>
+  <div id="result"></div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+    const target = document.getElementById('result');
+
+    if (!code) {
+      target.innerHTML = `
+        <div class="fail">
+          <strong>No code in URL.</strong>
+          <p>This page should be opened from GitHub's redirect after creating the App. If you got here directly, go back and start over from <code>github-app-install.html</code>.</p>
+        </div>`;
+    } else {
+      target.innerHTML = `
+        <div class="ok">
+          <strong>Success — the App is created on GitHub.</strong>
+          <p>Copy the code below and paste it back into the Claude chat. Claude will exchange it for the App ID, private key, and webhook secret.</p>
+        </div>
+        <p><strong>Code (paste this into chat):</strong></p>
+        <div class="code-box" id="code">${code}</div>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('code').innerText).then(() => this.innerText='Copied!')">Copy to clipboard</button>
+        <p style="margin-top:32px; font-size:13px; color:#64748b;">
+          The code is single-use and expires after a few minutes. Exchange it promptly.
+        </p>`;
+    }
+  </script>
+</body>
+</html>

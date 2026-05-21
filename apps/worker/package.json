@@ -1,0 +1,25 @@
+{
+  "name": "@claudegpt/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@claudegpt/clickup": "workspace:*",
+    "@claudegpt/db": "workspace:*",
+    "@claudegpt/github": "workspace:*",
+    "@claudegpt/qa": "workspace:*",
+    "@claudegpt/queue": "workspace:*",
+    "@claudegpt/runner": "workspace:*",
+    "@claudegpt/shared": "workspace:*",
+    "bullmq": "^5.10.0",
+    "drizzle-orm": "^0.32.0"
+  }
+}

@@ -1,0 +1,37 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# build
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# env
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+logs/
+
+# editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# runtime artifacts
+.claudegpt/snapshots/
+.claudegpt/hook-log.jsonl
+.claudegpt/current-run.json
+.claudegpt/handoff.json
+.claudegpt/bail.json
+
+# test
+coverage/
+
+# OS
+Thumbs.db

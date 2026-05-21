@@ -1,0 +1,42 @@
+{
+  "name": "claudegpt",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ClaudeGPT \u2014 orchestrator for AI-assisted software delivery",
+  "author": "Nishad Sukumaran",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r --filter=./packages/* --filter=./apps/* run build",
+    "start": "pnpm --filter @claudegpt/api start",
+    "start:worker": "pnpm --filter @claudegpt/worker start",
+    "dev": "pnpm --filter @claudegpt/api dev",
+    "dev:worker": "pnpm --filter @claudegpt/worker dev",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "db:generate": "pnpm --filter @claudegpt/db generate",
+    "db:migrate": "pnpm --filter @claudegpt/db migrate",
+    "db:studio": "pnpm --filter @claudegpt/db studio",
+    "format": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,js,json,md}\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.2",
+    "tsx": "^4.15.0",
+    "typescript": "^5.5.0",
+    "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "tsx": "^4.15.0"
+  }
+}
