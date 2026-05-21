@@ -98,8 +98,9 @@ export async function invokeClaude(opts: ClaudeInvocationOptions): Promise<Claud
       clearTimeout(timer);
       const exitCode = code ?? -1;
       if (exitCode !== 0) {
-        log.error({ exitCode, stderr: stderr.slice(0, 1000) }, 'Claude CLI exited non-zero');
-        reject(new Error(`Claude CLI exited ${exitCode}: ${stderr.slice(0, 500)}`));
+        log.error({ exitCode, stderr: stderr.slice(0, 2000), stdout: stdout.slice(0, 2000) }, 'Claude CLI exited non-zero');
+        const detail = stderr.trim() || stdout.trim() || '(no output)';
+        reject(new Error(`Claude CLI exited ${exitCode}: ${detail.slice(0, 800)}`));
         return;
       }
 
