@@ -50,7 +50,8 @@ export async function invokeClaude(opts: ClaudeInvocationOptions): Promise<Claud
 
   const args = [
     '--print',
-    '--output-format=json',
+    '--verbose',
+    '--output-format=stream-json',
     `--model=${model}`,
     '--dangerously-skip-permissions',
     ...(opts.extraArgs ?? []),
@@ -70,8 +71,30 @@ export async function invokeClaude(opts: ClaudeInvocationOptions): Promise<Claud
     let stdout = '';
     let stderr = '';
 
+    let lastResultLine: string | null = null;
+    let lineBuf = '';
     child.stdout.on('data', (chunk: Buffer) => {
-      stdout += chunk.toString('utf8');
+      const text = chunk.toString('utf8');
+      stdout += text;
+      lineBuf += text;
+      let nl;
+      while ((nl = lineBuf.indexOf('\n')) !== -1) {
+        const line = lineBuf.slice(0, nl).trim();
+        lineBuf = lineBuf.slice(nl + 1);
+        if (!line) continue;
+        try {
+          const obj = JSON.parse(line);
+          // Log message types so we can see progress in our run_logs.
+          if (typeof obj === 'object' && obj !== null) {
+            const t = (obj as Record<string, unknown>).type;
+            const subtype = (obj as Record<string, unknown>).subtype;
+            log.info({ type: t, subtype }, 'claude.stream');
+            if (t === 'result') lastResultLine = line;
+          }
+        } catch {
+          // Non-JSON line; skip.
+        }
+      }
     });
     child.stderr.on('data', (chunk: Buffer) => {
       stderr += chunk.toString('utf8');
@@ -107,7 +130,7 @@ export async function invokeClaude(opts: ClaudeInvocationOptions): Promise<Claud
       let rawText = stdout;
       let tokenUsage = 0;
       try {
-        const wrapper = JSON.parse(stdout);
+        const wrapper = JSON.parse(lastResultLine ?? stdout);
         if (typeof wrapper === 'object' && wrapper !== null) {
           if (typeof wrapper.result === 'string') rawText = wrapper.result;
           else if (typeof wrapper.text === 'string') rawText = wrapper.text;
