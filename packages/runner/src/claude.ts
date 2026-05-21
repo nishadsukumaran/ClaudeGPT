@@ -62,7 +62,9 @@ export async function invokeClaude(opts: ClaudeInvocationOptions): Promise<Claud
     const child = spawn(CLAUDE_BIN, args, {
       cwd,
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env },
+      // IS_SANDBOX=1 lets the CLI accept --dangerously-skip-permissions
+      // when running as root (which is the case inside our container).
+      env: { ...process.env, IS_SANDBOX: '1' },
     });
 
     let stdout = '';
