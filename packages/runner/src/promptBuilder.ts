@@ -69,12 +69,19 @@ function parseFrontmatter(raw: string): AgentDefinition {
 }
 
 /**
- * Load and parse an agent definition file. Path is resolved relative to the
- * orchestrator working tree (process.cwd()), since agent files live in this
- * repo at `agents/`.
+ * Load and parse an agent definition file. Path is resolved with the following priority:
+ *   1. AGENTS_DIR env var (strip 'agents/' prefix, then join) — useful in containers
+ *      where the worker cwd is not the repo root.
+ *   2. process.cwd()-relative — the original behavior for local dev.
  */
 export function loadAgentDefinition(relativePath: string): AgentDefinition {
-  const abs = path.resolve(process.cwd(), relativePath);
+  let abs: string;
+  if (process.env.AGENTS_DIR) {
+    const stripped = relativePath.replace(/^agents[\\/]/, '');
+    abs = path.resolve(process.env.AGENTS_DIR, stripped);
+  } else {
+    abs = path.resolve(process.cwd(), relativePath);
+  }
   const raw = fs.readFileSync(abs, 'utf8');
   return parseFrontmatter(raw);
 }
@@ -156,12 +163,3 @@ export function buildPrompt(args: {
   const reworkBlock = v.qaFeedback
     ? `---\nQA FEEDBACK (apply only the items listed here):\n${v.qaFeedback}\n\n`
     : '';
-
-  const tail =
-    `---\nAGENT GUIDANCE:\n${agent.body.trim()}\n\n` +
-    `---\nISSUE BODY:\n{{issueBody}}\n`;
-
-  const rendered = template(header + reworkBlock + tail, stringVars);
-  log.debug({ length: rendered.length, agentFile: args.agentFile }, 'Prompt built');
-  return { prompt: rendered, agent };
-}
