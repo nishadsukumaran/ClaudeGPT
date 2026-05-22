@@ -4,6 +4,7 @@ import { normalizeEvent, type NormalizedEvent } from '@claudegpt/github';
 import { policyCheck, recordViolation, type PolicyDecision } from '@claudegpt/policy';
 import { claimTask } from '@claudegpt/claim';
 import { enqueueJob, QUEUE_NAMES, type QueueName } from '@claudegpt/queue';
+import { ensureTaskForIssue, moveTaskForIssue } from '@claudegpt/clickup';
 import { isChatGptBot } from '@claudegpt/qa';
 import { getLogger } from '@claudegpt/shared';
 import type { JobType } from '@claudegpt/shared';
@@ -429,6 +430,30 @@ export async function routeEvent(eventId: string): Promise<RouteOutcome> {
 
   await enqueueJob(target.queue, jobId, target.delayMs ? { delay: target.delayMs } : undefined);
   await markEventProcessed(eventId);
+
+  // Best-effort ClickUp sync. Failures here never break the orchestrator loop.
+  try {
+    if (target.jobType === 'claude_implement_issue' && event.issueNumber !== null) {
+      const issue = (event.raw as { issue?: { title?: string; body?: string } })?.issue;
+      await ensureTaskForIssue({
+        repo: event.repo,
+        issueNumber: event.issueNumber,
+        title: issue?.title ?? `Issue #${event.issueNumber}`,
+        bodyMarkdown: issue?.body ?? undefined,
+        lane: 'ready_for_build',
+      });
+    } else if (target.jobType === 'openai_qa_review' && target.mode === 'timeout' && event.issueNumber !== null) {
+      // PR opened — flip the existing build ticket to QA Review.
+      await moveTaskForIssue({
+        repo: event.repo,
+        issueNumber: event.issueNumber,
+        lane: 'qa_review',
+        commentMarkdown: 'PR opened; awaiting Codex review.',
+      });
+    }
+  } catch (err) {
+    log.warn({ err }, 'ClickUp sync (routing) failed; ignoring');
+  }
 
   if (target.delayMs) {
     log.info(

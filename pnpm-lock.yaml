@@ -199,6 +199,9 @@ importers:
 
   packages/qa:
     dependencies:
+      '@claudegpt/clickup':
+        specifier: workspace:*
+        version: link:../clickup
       '@claudegpt/db':
         specifier: workspace:*
         version: link:../db
@@ -238,6 +241,9 @@ importers:
       '@claudegpt/claim':
         specifier: workspace:*
         version: link:../claim
+      '@claudegpt/clickup':
+        specifier: workspace:*
+        version: link:../clickup
       '@claudegpt/db':
         specifier: workspace:*
         version: link:../db
@@ -265,6 +271,9 @@ importers:
 
   packages/runner:
     dependencies:
+      '@claudegpt/clickup':
+        specifier: workspace:*
+        version: link:../clickup
       '@claudegpt/db':
         specifier: workspace:*
         version: link:../db

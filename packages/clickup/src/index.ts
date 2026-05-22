@@ -25,3 +25,11 @@ export {
 } from './client.js';
 export type { ClickUpTask, ClickUpComment } from './client.js';
 export { resolveStatus, DEFAULT_STATUS_MAP } from './statusMap.js';
+export {
+  ensureTaskForIssue,
+  moveTaskForIssue,
+  moveTaskByPrNumber,
+  createNishadActionTicket,
+  commentOnIssueTask,
+} from './lifecycle.js';
+export type { Lane } from './lifecycle.js';

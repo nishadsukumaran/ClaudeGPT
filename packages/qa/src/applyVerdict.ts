@@ -1,4 +1,5 @@
 import { addLabels, removeLabel, commentOnIssue } from '@claudegpt/github';
+import { moveTaskByPrNumber } from '@claudegpt/clickup';
 import { getLogger } from '@claudegpt/shared';
 import type { QaVerdict } from './parseResponse.js';
 
@@ -98,4 +99,14 @@ export async function applyVerdict(
     await removeLabel(repo, prNumber, QA_LABELS.approved);
   }
   log.info({ repo, prNumber, result: verdict.result }, 'QA labels applied');
+
+  // Best-effort ClickUp lane move based on verdict.
+  await moveTaskByPrNumber({
+    repo,
+    prNumber,
+    lane: verdict.result === 'pass' ? 'ready_for_release' : 'bugs',
+    commentMarkdown: verdict.result === 'pass'
+      ? 'Codex approved. Moved to Ready For Release.'
+      : 'Codex requested changes. Moved to Bugs.',
+  }).catch((err) => log.warn({ err }, 'ClickUp lane move failed (non-fatal)'));
 }

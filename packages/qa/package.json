@@ -20,6 +20,7 @@
     "@claudegpt/runner": "workspace:*",
     "@claudegpt/shared": "workspace:*",
     "drizzle-orm": "^0.32.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@claudegpt/clickup": "workspace:*"
   }
 }

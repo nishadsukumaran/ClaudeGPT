@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { getDb, schema } from '@claudegpt/db';
 import { getLogger, loadEnv } from '@claudegpt/shared';
 import { commentOnIssue, addLabels, createPullRequest } from '@claudegpt/github';
+import { createNishadActionTicket, moveTaskForIssue } from '@claudegpt/clickup';
 import { projectConfigSchema, type ProjectConfig } from '@claudegpt/project-registry';
 
 import { createWorkspace, cleanupWorkspace } from './workspace.js';
@@ -478,6 +479,27 @@ async function handleBlock(
       issueNumber,
       `ClaudeGPT: blocked at \`${hookName}\` hook.\n\n**Reason:** ${hookResult.reason ?? 'unspecified'}\n\nRun id: \`${runId}\``,
     ).catch((err) => log.warn({ err }, 'commentOnIssue failed (non-fatal)'));
+
+    // Surface the block in ClickUp's Nishad Actions list so it shows up in
+    // the operator's to-do queue. Move existing build ticket out of "In Build".
+    await moveTaskForIssue({
+      repo: job.githubRepo,
+      issueNumber,
+      lane: 'nishad_actions',
+      commentMarkdown: `Blocked at \`${hookName}\` — ${hookResult.reason ?? 'unspecified'}.\nRun id: ${runId}`,
+    }).catch((err) => log.warn({ err }, 'ClickUp moveTask failed (non-fatal)'));
+    await createNishadActionTicket({
+      title: `[${job.githubRepo}#${issueNumber}] Blocked at ${hookName}`,
+      contextMarkdown: [
+        `**Repo:** ${job.githubRepo}`,
+        `**Issue:** #${issueNumber}`,
+        `**Hook:** \`${hookName}\``,
+        `**Reason:** ${hookResult.reason ?? 'unspecified'}`,
+        `**Run id:** \`${runId}\``,
+        '',
+        'Address the block, then remove the `blocked` label to re-trigger the loop.',
+      ].join('\n'),
+    }).catch((err) => log.warn({ err }, 'ClickUp nishadAction ticket failed (non-fatal)'));
   }
 
   await db

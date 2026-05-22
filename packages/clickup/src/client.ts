@@ -232,3 +232,30 @@ export async function moveTask(taskId: string, listId: string): Promise<void> {
     `/list/${encodeURIComponent(listId)}/task/${encodeURIComponent(taskId)}`,
   );
 }
+
+/**
+ * Create a new ClickUp task inside a given list. Returns the created task —
+ * we mostly care about the `id` so we can persist it in `clickup_mappings`
+ * and update status later via `updateTaskStatus`.
+ *
+ * Reference: POST https://api.clickup.com/api/v2/list/{list_id}/task
+ */
+export async function createTask(args: {
+  listId: string;
+  name: string;
+  description?: string;
+  priority?: 1 | 2 | 3 | 4; // 1=urgent, 4=low (ClickUp convention)
+  tags?: string[];
+  assignees?: number[];
+}): Promise<ClickUpTask> {
+  const body: Record<string, unknown> = { name: args.name };
+  if (args.description) body.description = args.description;
+  if (args.priority) body.priority = args.priority;
+  if (args.tags) body.tags = args.tags;
+  if (args.assignees) body.assignees = args.assignees;
+  return clickupRequest<ClickUpTask>(
+    'POST',
+    `/list/${encodeURIComponent(args.listId)}/task`,
+    body,
+  );
+}

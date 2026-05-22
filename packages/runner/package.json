@@ -20,6 +20,7 @@
     "@claudegpt/queue": "workspace:*",
     "@claudegpt/shared": "workspace:*",
     "drizzle-orm": "^0.32.0",
-    "simple-git": "^3.25.0"
+    "simple-git": "^3.25.0",
+    "@claudegpt/clickup": "workspace:*"
   }
 }

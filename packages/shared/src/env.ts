@@ -29,6 +29,17 @@ const EnvSchema = z.object({
 
   CLICKUP_API_KEY: z.string().optional(),
   CLICKUP_TEAM_ID: z.string().optional(),
+  CLICKUP_LIST_READY_FOR_BUILD: z.string().optional(),
+  CLICKUP_LIST_IN_BUILD: z.string().optional(),
+  CLICKUP_LIST_QA_REVIEW: z.string().optional(),
+  CLICKUP_LIST_BUILD_COMPLETE: z.string().optional(),
+  CLICKUP_LIST_READY_FOR_RELEASE: z.string().optional(),
+  CLICKUP_LIST_BUGS: z.string().optional(),
+  CLICKUP_LIST_NISHAD_ACTIONS: z.string().optional(),
+  CLICKUP_LIST_CREDS_NEEDED: z.string().optional(),
+  CLICKUP_LIST_CLAUDE_LOGS: z.string().optional(),
+  CLICKUP_LIST_CHATGPT_LOGS: z.string().optional(),
+  CLICKUP_LIST_SYSTEM_LOGS: z.string().optional(),
 
   SLACK_BOT_TOKEN: z.string().optional(),
   SLACK_NOTIFY_CHANNEL: z.string().optional(),
